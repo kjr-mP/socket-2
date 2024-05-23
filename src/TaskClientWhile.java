@@ -4,7 +4,7 @@ import java.net.BindException;
 import java.net.Socket; //ネットワーク関連のパッケージを利用する
 import java.util.Scanner;
 
-public class plusTCPClient {
+public class TaskClientWhile {
 
     public static void main(String arg[]) {
         try {
@@ -15,33 +15,32 @@ public class plusTCPClient {
             Socket socket = new Socket("localhost", port);
             System.out.println("接続されました");
 
-            System.out.println("足し算を送ります");
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-
-            System.out.println("一つ目の整数を入力してください ↓");
-            String number1 = scanner.next();
-            System.out.println("二つ目の整数を入力してください ↓");
-            String number2 = scanner.next();
-            scanner.close();
-
-            number present = new number();
-            present.setNumber1(number1);
-            present.setNumber2(number2);
-
-            oos.writeObject(present);
-            oos.flush();
-
             ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 
-            number okaeshiPresent = (number) ois.readObject();
+            while (true) {
+                System.out.println("入力数字以下の最大素数を求めます。数を入力してください (1以下の数値を入力すると終了) ↓");
+                int num = scanner.nextInt();
 
-            String replayMsg = okaeshiPresent.getMessage();
-            System.out.println("サーバからのメッセージは..." + replayMsg);
+                if (num <= 1) {
+                    System.out.println("終了します");
+                    break; // ループを抜けてプログラムを終了
+                }
+
+                TaskObject present = new TaskObject();
+                present.setExecNumber(num);
+
+                oos.writeObject(present);
+                oos.flush();
+
+                TaskObject okaeshiPresent = (TaskObject) ois.readObject();
+                System.out.println("答えは" + okaeshiPresent.getResult());
+            }
 
             ois.close();
             oos.close();
             socket.close();
-
+            scanner.close();
         } // エラーが発生したらエラーメッセージを表示してプログラムを終了する
         catch (BindException be) {
             be.printStackTrace();
